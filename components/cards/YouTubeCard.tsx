@@ -13,8 +13,6 @@ interface YouTubeCardProps {
       videoId?: string;
       image?: string;
       description?: string;
-      hasTranscript?: boolean;
-      transcript?: string;
       aiSummary?: string;
       keyPoints?: string[];
       topics?: string[];
@@ -93,17 +91,6 @@ export default function YouTubeCard({ item, onDelete }: YouTubeCardProps) {
         <h3 className="text-lg font-semibold text-gray-900 mb-2 line-clamp-2">
           {item.title}
         </h3>
-
-        {item.metadata.hasTranscript && (
-          <div className="mb-3">
-            <span className="inline-flex items-center gap-1 px-2 py-1 bg-green-50 text-green-700 text-xs font-medium rounded-md">
-              <svg className="w-3 h-3" fill="none" stroke="currentColor" viewBox="0 0 24 24">
-                <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M9 12h6m-6 4h6m2 5H7a2 2 0 01-2-2V5a2 2 0 012-2h5.586a1 1 0 01.707.293l5.414 5.414a1 1 0 01.293.707V19a2 2 0 01-2 2z" />
-              </svg>
-              Transcript Available
-            </span>
-          </div>
-        )}
 
         {(item.metadata.description || item.content) && (
           <p className="text-gray-600 text-sm line-clamp-2 mb-3">
