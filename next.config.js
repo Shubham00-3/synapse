@@ -23,7 +23,7 @@ const nextConfig = {
   
   // Disable static optimization for API routes that use workers
   experimental: {
-    serverComponentsExternalPackages: ['tesseract.js', 'better-sqlite3'],
+    serverComponentsExternalPackages: ['tesseract.js', 'better-sqlite3', 'youtube-transcript'],
   },
 };
 
