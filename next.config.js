@@ -10,9 +10,6 @@ const nextConfig = {
     ],
   },
   
-  // Enable standalone output for Docker
-  output: 'standalone',
-  
   webpack: (config, { isServer }) => {
     // Enable SQLite support
     if (isServer) {
