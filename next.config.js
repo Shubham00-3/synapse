@@ -1,6 +1,6 @@
 /** @type {import('next').NextConfig} */
 const nextConfig = {
-  // Force Railway rebuild
+  // Railway rebuild v2
   images: {
     remotePatterns: [
       {
