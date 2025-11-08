@@ -1,8 +1,17 @@
 import Database from 'better-sqlite3';
 import path from 'path';
+import fs from 'fs';
 
 // Initialize database connection
-const dbPath = path.join(process.cwd(), 'database.db');
+// Use /app/data for Railway volume, otherwise use current directory
+const dataDir = process.env.RAILWAY_VOLUME_MOUNT_PATH || process.cwd();
+const dbPath = path.join(dataDir, 'database.db');
+
+// Ensure data directory exists
+if (!fs.existsSync(dataDir)) {
+  fs.mkdirSync(dataDir, { recursive: true });
+}
+
 const db = new Database(dbPath);
 
 // Enable WAL mode for better concurrency
