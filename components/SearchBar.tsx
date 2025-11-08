@@ -6,9 +6,10 @@ interface SearchBarProps {
   onSearch: (query: string) => void;
   onClear: () => void;
   loading?: boolean;
+  appliedFilters?: any;
 }
 
-export default function SearchBar({ onSearch, onClear, loading }: SearchBarProps) {
+export default function SearchBar({ onSearch, onClear, loading, appliedFilters }: SearchBarProps) {
   const [query, setQuery] = useState('');
 
   const handleSubmit = (e: React.FormEvent) => {
