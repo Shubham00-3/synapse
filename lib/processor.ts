@@ -225,14 +225,19 @@ async function processImage(dataUrl: string): Promise<ProcessedContent> {
   let aiInsights = null;
   let visionAnalysis = null;
   
+  // Skip OCR/Vision during build time (File API not available)
+  if (typeof window === 'undefined' && process.env.NEXT_PHASE === 'phase-production-build') {
+    console.log('Skipping OCR during build phase');
+  } else {
     try {
       // Dynamic import to avoid bundling issues
       const { extractTextFromImage } = await import('./ocr');
       ocrText = await extractTextFromImage(dataUrl);
-    console.log('OCR extracted text length:', ocrText.length);
-  } catch (error) {
-    console.error('OCR failed:', error);
-    // Continue without OCR text
+      console.log('OCR extracted text length:', ocrText.length);
+    } catch (error) {
+      console.error('OCR failed:', error);
+      // Continue without OCR text
+    }
   }
   
   // Analyze image with vision AI if we have OCR text
