@@ -14,17 +14,73 @@ export interface VisionAnalysis {
 
 /**
  * Analyze image content using AI vision
- * Note: As of current implementation, Groq doesn't have vision models yet,
- * so we'll use a text-based approach with OCR results
- * In production, you could use GPT-4 Vision, Claude with images, or other vision APIs
+ * Uses Groq's Llama 3.2 Vision model (FREE!) to understand what's in the image
+ * Works even without text - recognizes objects, scenes, people, etc.
  */
 export async function analyzeImageContent(
   ocrText: string,
   imageDataUrl?: string
 ): Promise<VisionAnalysis | null> {
   try {
-    // If we have OCR text, use AI to analyze it
+    // If we have the actual image, use Groq Vision API to analyze it
+    if (imageDataUrl) {
+      console.log('Analyzing image with Groq Vision API...');
+      
+      const response = await groq.chat.completions.create({
+        model: 'llama-3.2-90b-vision-preview',  // Groq's FREE vision model
+        messages: [{
+          role: 'user',
+          content: [
+            {
+              type: 'text',
+              text: `Analyze this image and provide detailed insights in JSON format.
+              
+Describe what you see: objects, people, scene, colors, mood, context, etc.
+
+Respond ONLY with valid JSON in this format:
+{
+  "description": "detailed description of what's in the image",
+  "objects": ["object1", "object2", "object3"],
+  "scene": "type of scene (indoor/outdoor, location type, etc)",
+  "colors": ["dominant color1", "color2"],
+  "tags": ["searchable", "keywords", "for", "this", "image"]
+}
+
+Be specific and detailed. Include any text you see in the image.`
+            },
+            {
+              type: 'image_url',
+              image_url: {
+                url: imageDataUrl
+              }
+            }
+          ]
+        }],
+        temperature: 0.3,
+        max_tokens: 500,
+      });
+
+      const resultText = response.choices[0]?.message?.content || '{}';
+      console.log('Vision API response:', resultText);
+      
+      const jsonMatch = resultText.match(/\{[\s\S]*\}/);
+      
+      if (jsonMatch) {
+        const analysis = JSON.parse(jsonMatch[0]);
+        return {
+          description: analysis.description || '',
+          objects: analysis.objects || [],
+          scene: analysis.scene || 'unknown',
+          colors: analysis.colors || [],
+          tags: analysis.tags || [],
+        };
+      }
+    }
+    
+    // Fallback: If no image URL but we have OCR text, analyze the text
     if (ocrText && ocrText.length > 20) {
+      console.log('Analyzing OCR text as fallback...');
+      
       const response = await groq.chat.completions.create({
         model: 'llama-3.3-70b-versatile',
         messages: [{
@@ -63,7 +119,7 @@ Be concise and relevant.`
       }
     }
 
-    // Fallback basic analysis
+    // No image or text to analyze
     return null;
   } catch (error) {
     console.error('Vision AI analysis failed:', error);

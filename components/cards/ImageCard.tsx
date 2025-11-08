@@ -16,6 +16,13 @@ interface ImageCardProps {
       aiSummary?: string;
       keyPoints?: string[];
       topics?: string[];
+      visionAnalysis?: {
+        description: string;
+        objects: string[];
+        scene: string;
+        colors: string[];
+        tags: string[];
+      };
     };
     created_at: string;
   };
@@ -80,6 +87,49 @@ export default function ImageCard({ item, onDelete }: ImageCardProps) {
               <p className="text-sm text-gray-700 whitespace-pre-wrap line-clamp-4">
                 {item.content}
               </p>
+            </div>
+          )}
+
+          {/* Vision AI Analysis */}
+          {item.metadata.visionAnalysis && (
+            <div className="mb-3 space-y-2">
+              {item.metadata.visionAnalysis.objects.length > 0 && (
+                <div className="flex flex-wrap gap-1">
+                  {item.metadata.visionAnalysis.objects.map((obj, idx) => (
+                    <span
+                      key={idx}
+                      className="text-xs px-2 py-1 bg-purple-50 text-purple-700 rounded-full"
+                    >
+                      🔍 {obj}
+                    </span>
+                  ))}
+                </div>
+              )}
+              
+              {item.metadata.visionAnalysis.scene && (
+                <div className="text-xs text-gray-600 flex items-center gap-1">
+                  <span className="font-medium">Scene:</span>
+                  <span className="px-2 py-0.5 bg-indigo-50 text-indigo-700 rounded">
+                    {item.metadata.visionAnalysis.scene}
+                  </span>
+                </div>
+              )}
+              
+              {item.metadata.visionAnalysis.colors.length > 0 && (
+                <div className="flex items-center gap-2">
+                  <span className="text-xs text-gray-600 font-medium">Colors:</span>
+                  <div className="flex gap-1">
+                    {item.metadata.visionAnalysis.colors.slice(0, 5).map((color, idx) => (
+                      <span
+                        key={idx}
+                        className="text-xs px-2 py-0.5 bg-gray-100 text-gray-700 rounded"
+                      >
+                        {color}
+                      </span>
+                    ))}
+                  </div>
+                </div>
+              )}
             </div>
           )}
 

@@ -240,17 +240,18 @@ async function processImage(dataUrl: string): Promise<ProcessedContent> {
     }
   }
   
-  // Analyze image with vision AI if we have OCR text
-  if (ocrText && ocrText.length > 0) {
-    try {
-      const { analyzeImageContent, generateSearchTags } = await import('./vision-ai');
-      visionAnalysis = await analyzeImageContent(ocrText, dataUrl);
-      if (visionAnalysis) {
-        console.log('Vision analysis:', visionAnalysis.scene);
-      }
-    } catch (error) {
-      console.error('Vision AI failed:', error);
+  // ALWAYS analyze image with vision AI (works even without text!)
+  // This uses Groq's FREE vision model to recognize objects, scenes, etc.
+  try {
+    const { analyzeImageContent, generateSearchTags } = await import('./vision-ai');
+    visionAnalysis = await analyzeImageContent(ocrText, dataUrl);
+    if (visionAnalysis) {
+      console.log('Vision analysis:', visionAnalysis.scene);
+      console.log('Detected objects:', visionAnalysis.objects);
     }
+  } catch (error) {
+    console.error('Vision AI failed:', error);
+    // Continue without vision analysis
   }
   
   // Generate title based on vision analysis, OCR text, or fallback to date
