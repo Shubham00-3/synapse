@@ -32,15 +32,16 @@ export function buildKnowledgeContext(items: Item[], maxItems = 10): string {
     const metadata = item.metadata_json ? JSON.parse(item.metadata_json) : {};
     
     // For YouTube videos, indicate if transcript is available
-    const contentLabel = item.type === 'youtube' && metadata.hasTranscript
+    const hasTranscript = item.type === 'youtube' && metadata.hasTranscript === true;
+    const contentLabel = hasTranscript
       ? 'Video Transcript'
       : item.type === 'youtube'
       ? 'Video Description'
       : 'Content';
     
-    // For YouTube videos with transcript, show more content (up to 1000 chars)
-    const contentPreview = item.type === 'youtube' && metadata.hasTranscript
-      ? (item.content ? item.content.slice(0, 1000) : 'No transcript available')
+    // For YouTube videos with transcript, show more content (up to 2000 chars for better context)
+    const contentPreview = hasTranscript
+      ? (item.content ? item.content.slice(0, 2000) : 'No transcript available')
       : (item.content ? item.content.slice(0, 300) : 'No content');
     
     return `[Item ${index + 1}] (ID: ${item.id}, Type: ${item.type})
@@ -108,14 +109,15 @@ Your role:
 - Answer questions based on their saved items
 - Suggest connections between ideas
 - Provide summaries and insights
-- For YouTube videos with transcripts, you can provide detailed summaries based on the full transcript
+- For YouTube videos: If "Video Transcript" is shown, you have the full transcript and can provide detailed answers. If only "Video Description" is shown, the video didn't have captions enabled, so you can only work with the description.
 - When referencing saved content, mention the Item ID so users can find it
 - Be conversational, helpful, and insightful
 - If you don't have relevant information, say so honestly
 
 Guidelines:
 - Always cite which saved items you're referencing (e.g., "Based on Item 3...")
-- For YouTube videos, you can provide comprehensive summaries if transcripts are available
+- For YouTube videos WITH transcripts, you can provide comprehensive summaries and answer specific questions about the content
+- For YouTube videos WITHOUT transcripts (description only), acknowledge the limitation and work with what's available
 - Help users discover patterns in their learning
 - Suggest what they might want to explore next
 - Be encouraging about their knowledge journey`
