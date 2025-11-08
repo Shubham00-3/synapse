@@ -1362,60 +1362,6 @@ OUT OF OR IN CONNECTION WITH THE SOFTWARE OR THE USE OR OTHER DEALINGS IN THE
 SOFTWARE.
 ```
 
----
-
-## 🙏 Acknowledgments
-
-- **Next.js** - React framework
-- **Groq** - Fast AI inference
-- **Tesseract.js** - OCR processing
-- **Readability.js** - Content extraction
-- **Tailwind CSS** - Styling framework
-- **Lucide** - Beautiful icons
-- **Model Context Protocol** - AI assistant integration
-
----
-
-## 📞 Support
-
-- **Documentation**: This README
-- **Issues**: [GitHub Issues](https://github.com/yourusername/synapse/issues)
-- **Discussions**: [GitHub Discussions](https://github.com/yourusername/synapse/discussions)
-- **Email**: support@synapse.example.com
-
----
-
-## 🗺️ Roadmap
-
-### Version 1.1 (Current Focus)
-- [ ] Mobile responsive improvements
-- [ ] Dark mode
-- [ ] Export/import functionality
-- [ ] Bulk operations
-
-### Version 1.2
-- [ ] Full-text search with highlights
-- [ ] Advanced filtering
-- [ ] Tags and labels
-- [ ] Shared collections
-
-### Version 2.0
-- [ ] Multi-user collaboration
-- [ ] Real-time sync
-- [ ] Mobile apps (iOS/Android)
-- [ ] Self-hosted AI models option
-
-### Version 3.0
-- [ ] Browser history integration
-- [ ] Email integration
-- [ ] Calendar integration
-- [ ] Advanced analytics dashboard
-
----
-
-<div align="center">
-
-**Built with ❤️ by the Synapse team**
 
 [⭐ Star on GitHub](https://github.com/yourusername/synapse) • [🐛 Report Bug](https://github.com/yourusername/synapse/issues) • [💡 Request Feature](https://github.com/yourusername/synapse/issues)
 
