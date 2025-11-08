@@ -112,11 +112,7 @@ export default function YouTubeCard({ item, onDelete }: YouTubeCardProps) {
         )}
 
         {/* AI Insights */}
-        <AIInsights
-          aiSummary={item.metadata.aiSummary}
-          keyPoints={item.metadata.keyPoints}
-          topics={item.metadata.topics}
-        />
+        <AIInsights metadata={item.metadata} />
 
         {/* Related Items */}
         <RelatedItems itemId={item.id} />
