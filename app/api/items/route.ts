@@ -5,6 +5,9 @@ import { sessionOptions, SessionData } from '@/lib/session';
 import { itemDb, apiKeyDb } from '@/lib/db';
 import { processContent, detectInputType } from '@/lib/processor';
 
+// Disable static optimization for this route
+export const dynamic = 'force-dynamic';
+
 // Helper function to authenticate request (session OR API key)
 async function authenticateRequest(request: NextRequest): Promise<number | null> {
   // Try API key first (for browser extension)
