@@ -21,9 +21,6 @@ COPY . .
 RUN npm run build
 RUN cd mcp-server && npm run build
 
-# Create volume for database persistence
-VOLUME ["/app/data"]
-
 # Expose port
 EXPOSE 3000
 
