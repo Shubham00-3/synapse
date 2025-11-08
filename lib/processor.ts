@@ -1,5 +1,6 @@
 import { scrapeUrl, detectTodoList, parseTodoList } from './scraper';
 import { generateEmbedding, analyzeContent, generateSummaryAndInsights } from './ai';
+import { extractYouTubeTranscript, truncateTranscript } from './youtube-transcript';
 
 export interface ProcessedContent {
   type: string;
@@ -32,21 +33,55 @@ async function processUrl(url: string): Promise<ProcessedContent> {
     // Scrape metadata from the URL
     const metadata = await scrapeUrl(url);
     
-    // Use full article content for embedding and AI if available
-    const contentForProcessing = metadata.fullContent || metadata.description || '';
-    const contentForStorage = metadata.fullContent || metadata.description || '';
+    // Handle YouTube videos specially - extract transcript
+    let transcript: string | null = null;
+    let contentForProcessing = metadata.fullContent || metadata.description || '';
+    let contentForStorage = metadata.fullContent || metadata.description || '';
     
-    // Generate embedding from title and full content
+    if (metadata.type === 'youtube' && metadata.videoId) {
+      try {
+        console.log(`Extracting transcript for YouTube video: ${metadata.videoId}`);
+        transcript = await extractYouTubeTranscript(metadata.videoId);
+        
+        if (transcript) {
+          console.log(`Transcript extracted: ${transcript.length} characters`);
+          contentForProcessing = transcript;
+          contentForStorage = transcript;
+        } else {
+          console.log('No transcript available for this video');
+          // Fallback to description if transcript unavailable
+          contentForProcessing = metadata.description || '';
+          contentForStorage = metadata.description || '';
+        }
+      } catch (error) {
+        console.error('Error extracting YouTube transcript:', error);
+        // Continue with description if transcript extraction fails
+        contentForProcessing = metadata.description || '';
+        contentForStorage = metadata.description || '';
+      }
+    }
+    
+    // Generate embedding from title and content
     const textForEmbedding = `${metadata.title} ${contentForProcessing}`.slice(0, 8000);
     const embedding = await generateEmbedding(textForEmbedding);
     
-    // Generate AI insights for articles (not for videos or products)
+    // Generate AI insights for articles and YouTube videos (if we have content)
     let aiInsights = null;
-    if (metadata.type === 'article' && contentForProcessing && contentForProcessing.length > 50) {
+    const shouldGenerateInsights = 
+      (metadata.type === 'article' || metadata.type === 'youtube') && 
+      contentForProcessing && 
+      contentForProcessing.length > 50;
+    
+    if (shouldGenerateInsights) {
       try {
+        // For YouTube, use truncated transcript for AI processing
+        const contentForAI = metadata.type === 'youtube' && transcript
+          ? truncateTranscript(transcript, 4000)
+          : contentForProcessing.slice(0, 4000);
+        
         aiInsights = await generateSummaryAndInsights(
           metadata.title,
-          contentForProcessing.slice(0, 4000), // Limit for AI processing
+          contentForAI,
           metadata.type
         );
       } catch (error) {
@@ -69,6 +104,8 @@ async function processUrl(url: string): Promise<ProcessedContent> {
         htmlContent: metadata.htmlContent,
         readingTime: metadata.readingTime,
         wordCount: metadata.wordCount,
+        transcript: transcript ? transcript.slice(0, 500) : undefined, // Store first 500 chars in metadata for preview
+        hasTranscript: !!transcript,
         aiSummary: aiInsights?.summary,
         keyPoints: aiInsights?.keyPoints,
         topics: aiInsights?.topics,

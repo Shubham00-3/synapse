@@ -31,11 +31,26 @@ export function buildKnowledgeContext(items: Item[], maxItems = 10): string {
   const itemsContext = items.slice(0, maxItems).map((item, index) => {
     const metadata = item.metadata_json ? JSON.parse(item.metadata_json) : {};
     
+    // For YouTube videos, indicate if transcript is available
+    const contentLabel = item.type === 'youtube' && metadata.hasTranscript
+      ? 'Video Transcript'
+      : item.type === 'youtube'
+      ? 'Video Description'
+      : 'Content';
+    
+    // For YouTube videos with transcript, show more content (up to 1000 chars)
+    const contentPreview = item.type === 'youtube' && metadata.hasTranscript
+      ? (item.content ? item.content.slice(0, 1000) : 'No transcript available')
+      : (item.content ? item.content.slice(0, 300) : 'No content');
+    
     return `[Item ${index + 1}] (ID: ${item.id}, Type: ${item.type})
 Title: ${item.title}
-Content: ${item.content ? item.content.slice(0, 300) : 'No content'}
-${metadata.aiSummary ? `Summary: ${metadata.aiSummary}` : ''}
-${metadata.topics ? `Topics: ${metadata.topics.join(', ')}` : ''}
+${contentLabel}: ${contentPreview}${item.type === 'youtube' && metadata.hasTranscript && item.content && item.content.length > 1000 ? '...' : ''}
+${metadata.videoId ? `Video ID: ${metadata.videoId}` : ''}
+${metadata.url ? `URL: ${metadata.url}` : ''}
+${metadata.aiSummary ? `AI Summary: ${metadata.aiSummary}` : ''}
+${metadata.keyPoints && metadata.keyPoints.length > 0 ? `Key Points: ${metadata.keyPoints.join('; ')}` : ''}
+${metadata.topics && metadata.topics.length > 0 ? `Topics: ${metadata.topics.join(', ')}` : ''}
 `;
   }).join('\n---\n');
 
@@ -93,12 +108,14 @@ Your role:
 - Answer questions based on their saved items
 - Suggest connections between ideas
 - Provide summaries and insights
+- For YouTube videos with transcripts, you can provide detailed summaries based on the full transcript
 - When referencing saved content, mention the Item ID so users can find it
 - Be conversational, helpful, and insightful
 - If you don't have relevant information, say so honestly
 
 Guidelines:
 - Always cite which saved items you're referencing (e.g., "Based on Item 3...")
+- For YouTube videos, you can provide comprehensive summaries if transcripts are available
 - Help users discover patterns in their learning
 - Suggest what they might want to explore next
 - Be encouraging about their knowledge journey`
