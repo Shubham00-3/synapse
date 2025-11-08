@@ -1,0 +1,242 @@
+<!DOCTYPE html>
+<html>
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <title>Synapse</title>
+  <style>
+    * {
+      margin: 0;
+      padding: 0;
+      box-sizing: border-box;
+    }
+
+    body {
+      width: 400px;
+      min-height: 500px;
+      font-family: -apple-system, BlinkMacSystemFont, 'Segoe UI', sans-serif;
+      background: linear-gradient(135deg, #667eea 0%, #764ba2 100%);
+      color: #fff;
+    }
+
+    .header {
+      padding: 20px;
+      text-align: center;
+      background: rgba(255, 255, 255, 0.1);
+      backdrop-filter: blur(10px);
+    }
+
+    h1 {
+      font-size: 24px;
+      margin-bottom: 5px;
+    }
+
+    .subtitle {
+      font-size: 12px;
+      opacity: 0.9;
+    }
+
+    .content {
+      padding: 20px;
+    }
+
+    .page-info {
+      background: rgba(255, 255, 255, 0.15);
+      padding: 15px;
+      border-radius: 10px;
+      margin-bottom: 15px;
+    }
+
+    .page-title {
+      font-size: 14px;
+      font-weight: 600;
+      margin-bottom: 5px;
+      word-wrap: break-word;
+    }
+
+    .page-url {
+      font-size: 11px;
+      opacity: 0.8;
+      word-break: break-all;
+    }
+
+    .actions {
+      display: flex;
+      flex-direction: column;
+      gap: 10px;
+    }
+
+    button {
+      padding: 12px 20px;
+      border: none;
+      border-radius: 8px;
+      font-size: 14px;
+      font-weight: 600;
+      cursor: pointer;
+      transition: all 0.2s;
+      display: flex;
+      align-items: center;
+      justify-content: center;
+      gap: 8px;
+    }
+
+    button:hover {
+      transform: translateY(-2px);
+      box-shadow: 0 4px 12px rgba(0, 0, 0, 0.2);
+    }
+
+    button:disabled {
+      opacity: 0.6;
+      cursor: not-allowed;
+      transform: none;
+    }
+
+    .save-btn {
+      background: #fff;
+      color: #667eea;
+    }
+
+    .save-image-btn {
+      background: rgba(255, 255, 255, 0.2);
+      color: #fff;
+    }
+
+    .save-selection-btn {
+      background: rgba(255, 255, 255, 0.2);
+      color: #fff;
+    }
+
+    .settings-btn {
+      background: transparent;
+      color: #fff;
+      border: 1px solid rgba(255, 255, 255, 0.3);
+    }
+
+    .status {
+      margin-top: 15px;
+      padding: 10px;
+      border-radius: 8px;
+      font-size: 13px;
+      text-align: center;
+      display: none;
+    }
+
+    .status.success {
+      background: rgba(76, 175, 80, 0.3);
+      display: block;
+    }
+
+    .status.error {
+      background: rgba(244, 67, 54, 0.3);
+      display: block;
+    }
+
+    .settings {
+      display: none;
+      padding: 15px;
+      background: rgba(255, 255, 255, 0.1);
+      border-radius: 10px;
+    }
+
+    .settings.show {
+      display: block;
+    }
+
+    .settings label {
+      display: block;
+      font-size: 12px;
+      margin-bottom: 5px;
+      opacity: 0.9;
+    }
+
+    .settings input {
+      width: 100%;
+      padding: 8px;
+      border: none;
+      border-radius: 5px;
+      font-size: 13px;
+      margin-bottom: 10px;
+    }
+
+    .settings button {
+      width: 100%;
+    }
+
+    .loading {
+      display: none;
+      text-align: center;
+      padding: 20px;
+    }
+
+    .spinner {
+      border: 3px solid rgba(255, 255, 255, 0.3);
+      border-top: 3px solid #fff;
+      border-radius: 50%;
+      width: 40px;
+      height: 40px;
+      animation: spin 1s linear infinite;
+      margin: 0 auto;
+    }
+
+    @keyframes spin {
+      0% { transform: rotate(0deg); }
+      100% { transform: rotate(360deg); }
+    }
+  </style>
+</head>
+<body>
+  <div class="header">
+    <h1>🧠 Synapse</h1>
+    <p class="subtitle">Your Second Brain</p>
+  </div>
+
+  <div class="content">
+    <div class="page-info">
+      <div class="page-title" id="pageTitle">Loading...</div>
+      <div class="page-url" id="pageUrl"></div>
+    </div>
+
+    <div class="actions">
+      <button class="save-btn" id="savePage">
+        <span>💾</span>
+        <span>Save This Page</span>
+      </button>
+
+      <button class="save-selection-btn" id="saveSelection">
+        <span>✂️</span>
+        <span>Save Selected Text</span>
+      </button>
+
+      <button class="save-image-btn" id="saveImage">
+        <span>🖼️</span>
+        <span>Save Image from Page</span>
+      </button>
+
+      <button class="settings-btn" id="settingsBtn">
+        <span>⚙️</span>
+        <span>Settings</span>
+      </button>
+    </div>
+
+    <div class="status" id="status"></div>
+
+    <div class="settings" id="settings">
+      <label>Synapse API URL:</label>
+      <input type="text" id="apiUrl" placeholder="http://localhost:3002">
+      
+      <label>API Key:</label>
+      <input type="password" id="apiKey" placeholder="sk-synapse-...">
+      
+      <button class="save-btn" id="saveSettings">Save Settings</button>
+    </div>
+
+    <div class="loading" id="loading">
+      <div class="spinner"></div>
+      <p style="margin-top: 10px;">Saving to Synapse...</p>
+    </div>
+  </div>
+
+  <script src="popup.js"></script>
+</body>
+</html>
+

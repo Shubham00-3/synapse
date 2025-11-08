@@ -1,0 +1,16 @@
+Dockerfile
+.dockerignore
+node_modules
+npm-debug.log
+README.md
+.next
+.git
+.gitignore
+*.md
+mcp-server/node_modules
+mcp-server/dist
+.env
+database.db
+database.db-wal
+database.db-shm
+

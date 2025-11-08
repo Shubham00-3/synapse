@@ -9,6 +9,9 @@ const nextConfig = {
     ],
   },
   
+  // Enable standalone output for Docker
+  output: 'standalone',
+  
   webpack: (config, { isServer }) => {
     // Enable SQLite support
     if (isServer) {
@@ -20,7 +23,7 @@ const nextConfig = {
   
   // Disable static optimization for API routes that use workers
   experimental: {
-    serverComponentsExternalPackages: ['tesseract.js'],
+    serverComponentsExternalPackages: ['tesseract.js', 'better-sqlite3'],
   },
 };
 

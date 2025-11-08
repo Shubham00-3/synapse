@@ -2,15 +2,36 @@ import { NextRequest, NextResponse } from 'next/server';
 import { getIronSession } from 'iron-session';
 import { cookies } from 'next/headers';
 import { sessionOptions, SessionData } from '@/lib/session';
-import { itemDb } from '@/lib/db';
+import { itemDb, apiKeyDb } from '@/lib/db';
 import { processContent, detectInputType } from '@/lib/processor';
+
+// Helper function to authenticate request (session OR API key)
+async function authenticateRequest(request: NextRequest): Promise<number | null> {
+  // Try API key first (for browser extension)
+  const authHeader = request.headers.get('authorization');
+  if (authHeader?.startsWith('Bearer ')) {
+    const apiKey = authHeader.substring(7);
+    const keyRecord = apiKeyDb.findByKey(apiKey);
+    if (keyRecord) {
+      return keyRecord.user_id;
+    }
+  }
+
+  // Fall back to session (for web app)
+  const session = await getIronSession<SessionData>(await cookies(), sessionOptions);
+  if (session.isLoggedIn && session.userId) {
+    return session.userId;
+  }
+
+  return null;
+}
 
 // GET all items for the current user OR a specific item by ID
 export async function GET(request: NextRequest) {
   try {
-    const session = await getIronSession<SessionData>(await cookies(), sessionOptions);
+    const userId = await authenticateRequest(request);
     
-    if (!session.isLoggedIn || !session.userId) {
+    if (!userId) {
       return NextResponse.json({ error: 'Unauthorized' }, { status: 401 });
     }
 
@@ -21,7 +42,7 @@ export async function GET(request: NextRequest) {
       // Get specific item
       const item = itemDb.findById(parseInt(itemId));
       
-      if (!item || item.user_id !== session.userId) {
+      if (!item || item.user_id !== userId) {
         return NextResponse.json({ error: 'Item not found' }, { status: 404 });
       }
 
@@ -34,7 +55,7 @@ export async function GET(request: NextRequest) {
     }
 
     // Get all items
-    const items = itemDb.findByUserId(session.userId);
+    const items = itemDb.findByUserId(userId);
 
     // Parse metadata and embeddings
     const parsedItems = items.map(item => ({
@@ -56,9 +77,9 @@ export async function GET(request: NextRequest) {
 // POST - Create a new item
 export async function POST(request: NextRequest) {
   try {
-    const session = await getIronSession<SessionData>(await cookies(), sessionOptions);
+    const userId = await authenticateRequest(request);
     
-    if (!session.isLoggedIn || !session.userId) {
+    if (!userId) {
       return NextResponse.json({ error: 'Unauthorized' }, { status: 401 });
     }
 
@@ -82,7 +103,7 @@ export async function POST(request: NextRequest) {
 
     // Save to database
     const itemId = itemDb.create({
-      user_id: session.userId,
+      user_id: userId,
       type: processed.type,
       title: processed.title,
       content: processed.content,
@@ -119,9 +140,9 @@ export async function POST(request: NextRequest) {
 // DELETE an item
 export async function DELETE(request: NextRequest) {
   try {
-    const session = await getIronSession<SessionData>(await cookies(), sessionOptions);
+    const userId = await authenticateRequest(request);
     
-    if (!session.isLoggedIn || !session.userId) {
+    if (!userId) {
       return NextResponse.json({ error: 'Unauthorized' }, { status: 401 });
     }
 
@@ -137,7 +158,7 @@ export async function DELETE(request: NextRequest) {
 
     // Verify the item belongs to the user
     const item = itemDb.findById(parseInt(itemId));
-    if (!item || item.user_id !== session.userId) {
+    if (!item || item.user_id !== userId) {
       return NextResponse.json(
         { error: 'Item not found' },
         { status: 404 }
