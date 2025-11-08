@@ -201,7 +201,7 @@ server.setRequestHandler(ReadResourceRequestSchema, async (request) => {
           uri,
           mimeType: 'application/json',
           text: JSON.stringify(
-            results.map(r => ({ ...parseItem(r.item), score: r.score })),
+            results.map((r: any) => ({ ...parseItem(r.item), score: r.score })),
             null,
             2
           ),
