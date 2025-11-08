@@ -13,6 +13,9 @@ interface ArticleCardProps {
       description?: string;
       author?: string;
       favicon?: string;
+      htmlContent?: string;
+      readingTime?: number;
+      wordCount?: number;
       aiSummary?: string;
       keyPoints?: string[];
       topics?: string[];
