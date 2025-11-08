@@ -33,9 +33,9 @@ chrome.contextMenus.onClicked.addListener(async (info, tab) => {
   const apiKey = settings.apiKey;
 
   if (!apiKey) {
+    // Note: notifications work without icons too
     chrome.notifications.create({
       type: 'basic',
-      iconUrl: 'icons/icon48.png',
       title: 'Synapse',
       message: 'Please set your API key in extension settings'
     });
@@ -73,7 +73,6 @@ chrome.contextMenus.onClicked.addListener(async (info, tab) => {
       if (response.ok) {
         chrome.notifications.create({
           type: 'basic',
-          iconUrl: 'icons/icon48.png',
           title: 'Synapse',
           message: 'Saved successfully! 🎉'
         });
@@ -83,7 +82,6 @@ chrome.contextMenus.onClicked.addListener(async (info, tab) => {
     } catch (error) {
       chrome.notifications.create({
         type: 'basic',
-        iconUrl: 'icons/icon48.png',
         title: 'Synapse',
         message: 'Failed to save: ' + error.message
       });
